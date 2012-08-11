@@ -23,7 +23,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "osdefs.h"
-#if defined __LINUX__ || defined __FreeBSD__ || defined __OpenBSD__
+#if defined __LINUX__ || defined __FreeBSD__ || defined __OpenBSD__ || defined __APPLE__
   #include <arpa/inet.h>
   #include <netinet/in.h>
   #include <sys/ioctl.h>

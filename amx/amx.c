@@ -33,7 +33,7 @@
 #include <stdlib.h>     /* for getenv() */
 #include <string.h>
 #include "osdefs.h"
-#if defined __LINUX__ || defined __FreeBSD__ || defined __OpenBSD__
+#if defined __LINUX__ || defined __FreeBSD__ || defined __OpenBSD__ || defined __APPLE__
   #include <sclinux.h>
   #if !defined AMX_NODYNALOAD
     #include <dlfcn.h>
@@ -1091,7 +1091,7 @@ static int VerifyPcode(AMX *amx)
 }
 
 /* definitions used for amx_Init() and amx_Cleanup() */
-#if (defined _Windows || defined __LINUX__ || defined __FreeBSD__ || defined __OpenBSD__) && !defined AMX_NODYNALOAD
+#if (defined _Windows || defined __LINUX__ || defined __FreeBSD__ || defined __OpenBSD__ || defined __APPLE__) && !defined AMX_NODYNALOAD
   typedef int AMXEXPORT (AMXAPI _FAR *AMX_ENTRY)(AMX _FAR *amx);
 #endif
 
@@ -1101,11 +1101,11 @@ int AMXAPI amx_Init(AMX *amx,void *program)
   int err;
   uint16_t *namelength;
   unsigned char *data;
-  #if (defined _Windows || defined __LINUX__ || defined __FreeBSD__ || defined __OpenBSD__) && !defined AMX_NODYNALOAD
+  #if (defined _Windows || defined __LINUX__ || defined __FreeBSD__ || defined __OpenBSD__ || defined __APPLE__) && !defined AMX_NODYNALOAD
     #if defined _Windows
       char libname[sNAMEMAX+8]; /* +1 for '\0', +3 for 'amx' prefix, +4 for extension */
       HINSTANCE hlib;
-    #elif defined __LINUX__ || defined __FreeBSD__ || defined __OpenBSD__
+    #elif defined __LINUX__ || defined __FreeBSD__ || defined __OpenBSD__ || defined __APPLE__
       char libname[_MAX_PATH];
       char *root;
       void *hlib;
@@ -1278,10 +1278,10 @@ int AMXAPI amx_Init(AMX *amx,void *program)
     return err;
 
   /* load any extension modules that the AMX refers to */
-  #if (defined _Windows || defined __LINUX__ || defined __FreeBSD__ || defined __OpenBSD__) && !defined AMX_NODYNALOAD
+  #if (defined _Windows || defined __LINUX__ || defined __FreeBSD__ || defined __OpenBSD__ || defined __APPLE__) && !defined AMX_NODYNALOAD
   { /* local */
     int i;
-    #if defined __LINUX__ || defined __FreeBSD__ || defined __OpenBSD__
+    #if defined __LINUX__ || defined __FreeBSD__ || defined __OpenBSD__ || defined __APPLE__
       root=getenv("AMXLIB");
     #endif
     hdr=(AMX_HEADER *)amx->base;
@@ -1289,7 +1289,7 @@ int AMXAPI amx_Init(AMX *amx,void *program)
     for (i=0; i<numlibraries; i++) {
       lib=GETENTRY(hdr,libraries,i);
       libname[0]='\0';
-      #if defined __LINUX__ || defined __FreeBSD__ || defined __OpenBSD__
+      #if defined __LINUX__ || defined __FreeBSD__ || defined __OpenBSD__ || defined __APPLE__
         if (root!=NULL && *root!='\0') {
           strcpy(libname,root);
           if (libname[strlen(libname)-1]!='/')
@@ -1307,7 +1307,7 @@ int AMXAPI amx_Init(AMX *amx,void *program)
           if (hlib<=HINSTANCE_ERROR)
             hlib=NULL;
         #endif
-      #elif defined __LINUX__ || defined __FreeBSD__ || defined __OpenBSD__
+      #elif defined __LINUX__ || defined __FreeBSD__ || defined __OpenBSD__ || defined __APPLE__
         strcat(libname,".so");
         hlib=dlopen(libname,RTLD_NOW);
       #endif
@@ -1321,7 +1321,7 @@ int AMXAPI amx_Init(AMX *amx,void *program)
         strcat(funcname,"Init");
         #if defined _Windows
           libinit=(AMX_ENTRY)GetProcAddress(hlib,funcname);
-        #elif defined __LINUX__ || defined __FreeBSD__ || defined __OpenBSD__
+        #elif defined __LINUX__ || defined __FreeBSD__ || defined __OpenBSD__ || defined __APPLE__
           libinit=(AMX_ENTRY)dlsym(hlib,funcname);
         #endif
         if (libinit!=NULL)
@@ -1358,7 +1358,7 @@ int AMXAPI amx_Init(AMX *amx,void *program)
       return !VirtualProtect(addr, len, p, &prev);
     }
 
-  #elif defined __LINUX__ || defined __FreeBSD__ || defined __OpenBSD__
+  #elif defined __LINUX__ || defined __FreeBSD__ || defined __OpenBSD__ || defined __APPLE__
 
     /* Linux already has mprotect() */
     #define ALIGN(addr) (char *)(((long)addr + sysconf(_SC_PAGESIZE)-1) & ~(sysconf(_SC_PAGESIZE)-1))
@@ -1438,7 +1438,7 @@ int AMXAPI amx_InitJIT(AMX *amx,void *compiled_program,void *reloc_table)
 #if defined AMX_CLEANUP
 int AMXAPI amx_Cleanup(AMX *amx)
 {
-  #if (defined _Windows || defined __LINUX__ || defined __FreeBSD__ || defined __OpenBSD__) && !defined AMX_NODYNALOAD
+  #if (defined _Windows || defined __LINUX__ || defined __FreeBSD__ || defined __OpenBSD__ || defined __APPLE__) && !defined AMX_NODYNALOAD
     AMX_HEADER *hdr;
     int numlibraries,i;
     AMX_FUNCSTUB *lib;
@@ -1446,7 +1446,7 @@ int AMXAPI amx_Cleanup(AMX *amx)
   #endif
 
   /* unload all extension modules */
-  #if (defined _Windows || defined __LINUX__ || defined __FreeBSD__ || defined __OpenBSD__) && !defined AMX_NODYNALOAD
+  #if (defined _Windows || defined __LINUX__ || defined __FreeBSD__ || defined __OpenBSD__ || defined __APPLE__) && !defined AMX_NODYNALOAD
     hdr=(AMX_HEADER *)amx->base;
     assert(hdr->magic==AMX_MAGIC);
     numlibraries=NUMENTRIES(hdr,libraries,pubvars);
@@ -1459,14 +1459,14 @@ int AMXAPI amx_Cleanup(AMX *amx)
         strcat(funcname,"Cleanup");
         #if defined _Windows
           libcleanup=(AMX_ENTRY)GetProcAddress((HINSTANCE)lib->address,funcname);
-        #elif defined __LINUX__ || defined __FreeBSD__ || defined __OpenBSD__
+        #elif defined __LINUX__ || defined __FreeBSD__ || defined __OpenBSD__ || defined __APPLE__
           libcleanup=(AMX_ENTRY)dlsym((void*)(intptr_t)lib->address,funcname);
         #endif
         if (libcleanup!=NULL)
           libcleanup(amx);
         #if defined _Windows
           FreeLibrary((HINSTANCE)lib->address);
-        #elif defined __LINUX__ || defined __FreeBSD__ || defined __OpenBSD__
+        #elif defined __LINUX__ || defined __FreeBSD__ || defined __OpenBSD__ || defined __APPLE__
           dlclose((void*)(intptr_t)lib->address);
         #endif
       } /* if */

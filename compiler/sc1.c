@@ -65,7 +65,7 @@
 
 #include "lstring.h"
 #include "sc.h"
-#if defined __LINUX__ || defined __FreeBSD__ || defined __OpenBSD__
+#if defined __LINUX__ || defined __FreeBSD__ || defined __OpenBSD__ || defined __APPLE__
   #include <sclinux.h>
   #include <binreloc.h> /* from BinReloc, see www.autopackage.org */
 #endif
@@ -1438,6 +1438,7 @@ static void setconfig(char *root)
 
   #if defined macintosh || defined __APPLE__
     /* OS X makes the directory of the binary "current" when it is launched */
+  #warning XXX This is almost certainly bogus when invoked from the shell, but hardcoded binary path is worse, what's wrong with argv[0]?
     getcwd(path,sizeof path);
   #elif defined __WIN32__ || defined _WIN32
     GetModuleFileName(NULL,path,_MAX_PATH);
@@ -1465,7 +1466,7 @@ static void setconfig(char *root)
     if ((ptr=strpbrk(path," \t/"))!=NULL)
       *ptr='\0';
   #endif
-  #if defined macintosh || defined __APPLE__
+  #if defined macintosh
     /* add a final ':' to the path */
     ptr=strchr(path,'\0');
     assert(ptr!=NULL);

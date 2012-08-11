@@ -75,14 +75,14 @@
       #define WIN32_CONSOLE
     #endif
   #endif
-#elif !defined macintosh || defined __APPLE__
+#elif !defined macintosh
   #include "../linux/getch.h"
   #include <fcntl.h>
   #include <termios.h>
   #include <unistd.h>
 #endif
 
-#if !defined AMX_NODYNALOAD && defined ENABLE_BINRELOC && (defined __LINUX__ || defined __FreeBSD__ || defined __OpenBSD__)
+#if !defined AMX_NODYNALOAD && defined ENABLE_BINRELOC && (defined __LINUX__ || defined __FreeBSD__ || defined __OpenBSD__ || defined __APPLE__)
   #include <binreloc.h> /* from BinReloc, see www.autopackage.org */
 #endif
 
@@ -947,8 +947,12 @@ static int remote_rs232(int port,int baud)
     newtio.c_cflag=CS8 | CLOCAL | CREAD;
 
     switch (baud) {
+    #if defined B1152000
     case 1152000: newtio.c_cflag |= B1152000; break;
+    #endif
+    #if defined B576000
     case  576000: newtio.c_cflag |=  B576000; break;
+    #endif
     case  230400: newtio.c_cflag |=  B230400; break;
     case  115200: newtio.c_cflag |=  B115200; break;
     case   57600: newtio.c_cflag |=   B57600; break;
@@ -1176,8 +1180,8 @@ static int remote_transfer_rs232(const char *filename)
   unsigned char *buffer;
   char str[128];
   FILE *fp;
-  size_t bytes,block;
-  unsigned long size,chksum;
+  size_t bytes;
+  unsigned long size,chksum,block;
   int len,err;
 
   #if defined __WIN32__
@@ -1200,7 +1204,7 @@ static int remote_transfer_rs232(const char *filename)
   len=strlen(str);
   send_rs232(str,len);
   getresponse_rs232(str,sizeof str,100);
-  if (sscanf(str,"@%x",&block)!=1)
+  if (sscanf(str,"@%lx",&block)!=1)
     block=0;
   /* allocate 1 byte more, for the ACK/NAK prefix */
   if (block==0 || (buffer=(unsigned char*)malloc((block+1)*sizeof(char)))==NULL) {
@@ -2825,7 +2829,7 @@ extern AMX_NATIVE_INFO console_Natives[];
   unsigned short flags;
   char *ptr;
 
-  #if !defined AMX_NODYNALOAD && defined ENABLE_BINRELOC && (defined __LINUX__ || defined __FreeBSD__ || defined __OpenBSD__)
+  #if !defined AMX_NODYNALOAD && defined ENABLE_BINRELOC && (defined __LINUX__ || defined __FreeBSD__ || defined __OpenBSD__ || defined __APPLE__)
     /* see www.autopackage.org for the BinReloc module */
     if (br_init(NULL)) {
       char *libroot=br_find_exe_dir("");

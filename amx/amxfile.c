@@ -36,7 +36,7 @@
 #if defined __BORLANDC__
   #include <dir.h>
 #endif
-#if defined __BORLANDC__ || defined __LINUX__ || defined __FreeBSD__ || defined __OpenBSD__ || defined MACOS
+#if defined __BORLANDC__ || defined __LINUX__ || defined __FreeBSD__ || defined __OpenBSD__ || defined MACOS || defined __APPLE__
   #include <utime.h>
 #else
   #include <sys/utime.h>
@@ -47,7 +47,7 @@
 #if defined __WATCOMC__
   #include <direct.h>
 #endif
-#if defined __LINUX__ || defined __FreeBSD__ || defined __OpenBSD__ || defined MACOS
+#if defined __LINUX__ || defined __FreeBSD__ || defined __OpenBSD__ || defined MACOS || defined __APPLE__
   #include <dirent.h>
 #else
   #include <io.h>
@@ -87,12 +87,12 @@
   #define _tfopen       fopen
   #define _tfputs       fputs
   #define _tgetenv      getenv
-  #define _tmkdir       _mkdir
+  #define _tmkdir       mkdir
   #define _tremove      remove
   #define _trename      rename
-  #define _trmdir       _rmdir
-  #define _tstat        _stat
-  #define _tutime       _utime
+  #define _trmdir       rmdir
+  #define _tstat        stat
+  #define _tutime       utime
 #endif
 #if !(defined __WIN32__ || defined _WIN32 || defined WIN32)
   #define _stat(n,b)  stat(n,b)
@@ -792,7 +792,7 @@ static int matchfiles(const TCHAR *path,int skip,TCHAR *out,int outlen)
       strcpy(dirname,".");
     } else {
       strncpy(dirname,path,(int)(basename-path));
-      dirname[(int)(basename-path)]=_T('\0');
+      dirname[(int)(basename-path)]=__T('\0');
     } /* if */
     if ((dir=opendir(dirname))!=NULL) {
       while ((entry=readdir(dir))!=NULL) {

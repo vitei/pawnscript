@@ -66,7 +66,7 @@ static unsigned long gettimestamp(void)
 
   #if defined __WIN32__ || defined _WIN32 || defined WIN32
     value=timeGetTime();        /* this value is already in milliseconds */
-  #elif defined __linux || defined __linux__ || defined __LINUX__
+  #elif defined __linux || defined __linux__ || defined __LINUX__ || defined __APPLE__
     struct timeval tv;
     gettimeofday(&tv, NULL);
     value = ((tv.tv_sec * 1000) + (tv.tv_usec / 1000));
@@ -145,6 +145,8 @@ static void settime(cell hour,cell minute,cell second)
   #else
     /* Linux/Unix (and some DOS compilers) have stime(); on Linux/Unix, you
      * must have "root" permission to call stime()
+     *
+     * Many posix systems will have settimeofday() instead.
      */
     time_t sec1970;
     struct tm gtm;
@@ -158,7 +160,16 @@ static void settime(cell hour,cell minute,cell second)
     if (second!=CELLMIN)
       gtm.tm_sec=wrap((int)second,0,59);
     sec1970=mktime(&gtm);
+    #if defined __APPLE__ /* really Posix */
+    {
+      struct timeval tv;
+      tv.tv_sec = sec1970;
+      tv.tv_usec = 0;
+      settimeofday(&tv, 0);
+    }
+    #else
     stime(&sec1970);
+    #endif
   #endif
 }
 
@@ -196,7 +207,16 @@ static void setdate(cell year,cell month,cell day)
     if (day!=CELLMIN)
       gtm.tm_mday=day;
     sec1970=mktime(&gtm);
+    #if defined __APPLE__ /* really Posix */
+    {
+      struct timeval tv;
+      tv.tv_sec = sec1970;
+      tv.tv_usec = 0;
+      settimeofday(&tv, 0);
+    }
+    #else
     stime(&sec1970);
+    #endif
   #endif
 }
 
@@ -362,7 +382,16 @@ static cell AMX_NATIVE_CALL n_settimestamp(AMX *amx, const cell *params)
      * must have "root" permission to call stime()
      */
     time_t sec1970=(time_t)params[1];
+    #if defined __APPLE__ /* really Posix */
+    {
+      struct timeval tv;
+      tv.tv_sec = sec1970;
+      tv.tv_usec = 0;
+      settimeofday(&tv, 0);
+    }
+    #else
     stime(&sec1970);
+    #endif
   #endif
   (void)amx;
 

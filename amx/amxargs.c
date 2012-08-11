@@ -135,7 +135,10 @@ static const TCHAR *rawcmdline(void)
         skip++;
       } /* if */
     #else
-      #error Platform not supported
+      /* no mechanism for determining the commandline,
+       * must be supplied with amx_ArgsSetCmdLine instead.
+       */
+      ptr = "";
     #endif
 
     /* skip leading white space */

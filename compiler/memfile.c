@@ -11,6 +11,8 @@
 
 #ifdef MACOS
   #include <malloc/malloc.h>
+#elif defined __APPLE__
+  #include <stdlib.h>	/* really, any modern Posix system */
 #else
   #include <malloc.h>
 #endif

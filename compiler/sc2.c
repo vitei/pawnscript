@@ -24,7 +24,7 @@
 #include <math.h>
 #include "lstring.h"
 #include "sc.h"
-#if defined __LINUX__ || defined __FreeBSD__ || defined __OpenBSD__
+#if defined __LINUX__ || defined __FreeBSD__ || defined __OpenBSD__ || defined __APPLE__
   #include <sclinux.h>
 #endif
 
